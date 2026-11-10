@@ -1,4 +1,5 @@
-import { validUA } from './model';
+import { validProfile, validUA } from './model';
+import { catalog, mutate } from './profiles';
 import type { Applied, Command, Response, TabState } from './model';
 
 const hints = ['Sec-CH-UA', 'Sec-CH-UA-Mobile', 'Sec-CH-UA-Platform', 'Sec-CH-UA-Full-Version', 'Sec-CH-UA-Full-Version-List', 'Sec-CH-UA-Platform-Version', 'Sec-CH-UA-Arch', 'Sec-CH-UA-Bitness', 'Sec-CH-UA-Model', 'Sec-CH-UA-WoW64', 'Sec-CH-UA-Form-Factors'];
@@ -54,10 +55,12 @@ async function state(tabId: number): Promise<TabState> {
   else if (!await chrome.permissions.contains({ origins: [new URL(tab.url!).origin + '/*'] })) reason = 'Acesso ao site não disponível. Confira o acesso a sites nas configurações da extensão e tente novamente.';
   return { tabId, supported: !reason, reason, applied: snapshots[tabId] ?? null };
 }
-async function apply(tabId: number, raw: unknown): Promise<TabState> {
+async function apply(tabId: number, raw: unknown, profileId?: string): Promise<TabState> {
   const ua = validUA(raw);
   const current = await state(tabId);
   if (!current.supported) throw new Error(current.reason);
+  const profile = profileId ? (await catalog()).find(item => item.id === profileId) : undefined;
+  if (profileId && (!profile || profile.ua !== ua)) throw new Error('O perfil selecionado mudou. Selecione novamente ou edite o campo para aplicar como personalizado.');
   const rules = await chrome.declarativeNetRequest.getSessionRules();
   const removeRuleIds = rules.filter(rule => rule.condition.tabIds?.includes(tabId)).map(rule => rule.id);
   await chrome.declarativeNetRequest.updateSessionRules({ removeRuleIds, addRules: [{
@@ -68,7 +71,7 @@ async function apply(tabId: number, raw: unknown): Promise<TabState> {
     ] },
     condition: { tabIds: [tabId], regexFilter: '^https?://', resourceTypes: Object.values(chrome.declarativeNetRequest.ResourceType) },
   }] });
-  snapshots[tabId] = { ua, name: 'Personalizado aplicado' };
+  snapshots[tabId] = { ua, name: profile?.name ?? 'Personalizado aplicado', category: profile?.category, profileId: profile?.id };
   try {
     await chrome.storage.session.set({ applied: snapshots });
     await indicator(tabId, snapshots[tabId]);
@@ -89,20 +92,35 @@ async function restore(tabId: number): Promise<TabState> {
 function parse(input: unknown): Command {
   if (!input || typeof input !== 'object') throw new Error('Comando inválido.');
   const data = input as Record<string, unknown>;
-  if (!Number.isInteger(data.tabId) || (data.tabId as number) < 0) throw new Error('Aba inválida.');
+  const tabId = () => {
+    if (!Number.isInteger(data.tabId) || (data.tabId as number) < 0) throw new Error('Aba inválida.');
+    return data.tabId as number;
+  };
+  const text = (key: string) => {
+    if (typeof data[key] !== 'string' || !data[key]) throw new Error('Referência de perfil inválida.');
+    return data[key] as string;
+  };
   switch (data.type) {
-    case 'state': return { type: 'state', tabId: data.tabId as number };
-    case 'restore': return { type: 'restore', tabId: data.tabId as number };
-    case 'apply': return { type: 'apply', tabId: data.tabId as number, ua: validUA(data.ua) };
+    case 'state': return { type: 'state', tabId: tabId() };
+    case 'restore': return { type: 'restore', tabId: tabId() };
+    case 'apply': return { type: 'apply', tabId: tabId(), ua: validUA(data.ua), profileId: data.profileId === undefined ? undefined : text('profileId') };
+    case 'catalog': return { type: 'catalog' };
+    case 'create': return { type: 'create', profile: validProfile(data.profile) };
+    case 'update': return { type: 'update', id: text('id'), revision: text('revision'), profile: validProfile(data.profile) };
+    case 'delete': return { type: 'delete', id: text('id'), revision: text('revision') };
     default: throw new Error('Comando desconhecido.');
   }
 }
 async function execute(command: Command): Promise<unknown> {
-  await reconcile();
+  if ('tabId' in command) await reconcile();
   switch (command.type) {
     case 'state': return state(command.tabId);
-    case 'apply': return apply(command.tabId, command.ua);
+    case 'apply': return apply(command.tabId, command.ua, command.profileId);
     case 'restore': return restore(command.tabId);
+    case 'catalog': return catalog();
+    case 'create':
+    case 'update':
+    case 'delete': return mutate(command);
     default: { const exhaustive: never = command; throw new Error(String(exhaustive)); }
   }
 }

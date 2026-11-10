@@ -1,6 +1,6 @@
 # 02: Catálogo e personalizados persistentes
 
-Status: ready-for-agent
+Status: implemented
 Blocked by: 01
 Fonte: ../spec.md; A2, A12–A13, A16–A18.
 
@@ -13,4 +13,4 @@ Fonte: ../spec.md; A2, A12–A13, A16–A18.
 - Conflitos/erros de storage não sobrescrevem nem declaram sucesso.
 
 ## Evidências
-Pendente.
+`npm run build` e `node --test tests/profiles.test.mjs`: 4 cenários passaram no Chrome real. Cadastro sem aplicação, snapshot independente de edição/exclusão, duplicação sem alteração do integrado, conflito com preservação do rascunho, falhas de gravação/exclusão sem falso sucesso, persistência após reinício e marcação inerte. Conferência de entrega: 62 IDs distintos, 15/25/10/12 por categoria, nenhum UA/fonte/data ausente. Fontes pesquisadas em 10/11/2026 por investigação independente; exemplos históricos e ambiguidades descritos nas entradas.

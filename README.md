@@ -19,6 +19,16 @@ Abra uma página HTTP/HTTPS e o popup da extensão. Revise ou cole o User-Agent 
 
 Cada aba tem seu próprio estado. Abas novas não herdam a alteração. Fechar a aba descarta a regra; reiniciar o navegador ou recarregar/atualizar a extensão começa sem alterações ativas. Suspender o worker não remove a regra.
 
+## Catálogo e personalizados
+
+O seletor pesquisa nome, navegador, sistema e fabricante sem diferenciar maiúsculas ou acentos. Selecionar preenche o campo; editar cria um rascunho independente. A seção de procedência mostra fonte, data de verificação e limites do perfil. Há 15 perfis Desktop, 25 Mobile, 10 Tablet e 12 Bots.
+
+**Salvar como perfil** cadastra o campo sem aplicar. **Configurações** abre uma aba com pesquisa, formulário e ações de gerenciamento. Integrados são somente leitura: **Duplicar como personalizado** prepara uma cópia que deve ser salva explicitamente. Excluir exige confirmação local. Nomes repetidos são permitidos e os personalizados mostram categoria e ID para diferenciação.
+
+Alterações confirmadas atualizam interfaces abertas. Uma edição concorrente preserva o rascunho e bloqueia sobrescrita; selecione a entrada atual na lista para revisá-la. Editar ou excluir um cadastro não altera o snapshot já aplicado à aba. Personalizados persistem em `storage.local`, formato 1; atualizar a extensão não substitui esse catálogo.
+
+Os rótulos de aparelhos indicam cobertura representativa, não popularidade comprovada. Modelos diferentes podem compartilhar exatamente o mesmo UA, inclusive Windows 10/11, iPhones e Androids modernos com redução de identidade. Há exemplos históricos explicitamente identificados nas notas; data de verificação é a data de consulta da fonte, não lançamento ou captura física. [Procedência do catálogo](docs/catalogo.md).
+
 ## Permissões e privacidade
 
 - `storage`: dados locais e estado temporário da aba.

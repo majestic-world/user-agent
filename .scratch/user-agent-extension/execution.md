@@ -19,4 +19,5 @@ Paper #F4F7FA, ink #203247, blue #275DC7, border #CCD6E2, green #247453, red #B5
 ## Progress
 01 implemented locally. Chrome real confirmed exact direct UA, isolation, document/iframe/resource/fetch/XHR, HTTP/HTTPS, removal and restoration of actually present UA-CH, unchanged navigator, invalid input preservation, protected-page rejection, worker stop/revival with missing metadata recovery, tab close, extension reload and browser restart. DNR and post-rule metadata failures induced at Chrome boundary, with truthful UI state. Typecheck passed.
 Harness finding: CDP stopWorker alone leaves an attached debugger and does not complete worker termination; use Puppeteer's worker.close() (stop + detach), waiting for target destruction. Unpacked extension reload requires developer mode in the disposable profile.
-Next: 02 catalog and persistent profile management, beginning with public options CRUD red.
+01 commit: 3578ac3.
+02 implemented locally. Four Chrome profile integration scenarios passed; 62 distinct builtins with required source/date fields and category counts 15/25/10/12 confirmed by one-off delivery check. Source research is preserved in src/catalog.ts URLs/notes and docs/catalogo.md. No Horus access. Next: visual inspection, remaining A1–A21 evidence, packaging and independent reviews.
