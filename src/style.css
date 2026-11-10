@@ -1,0 +1,26 @@
+@import '@fontsource/source-sans-3/400.css';
+@import '@fontsource/source-sans-3/600.css';
+:root { font-family: 'Source Sans 3', sans-serif; color: #203247; background: #F4F7FA; font-size: 15px; line-height: 1.4; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.popup { width: 420px; }
+main { padding: 20px; }
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+h1 { font-size: 24px; line-height: 1.1; margin: 0; font-weight: 600; }
+h1 span { font-weight: 400; }
+a { color: #275DC7; }
+label { display: block; font-weight: 600; margin-bottom: 6px; }
+input, select, textarea, button { font: inherit; }
+input, select, textarea { width: 100%; padding: 9px 10px; border: 1px solid #CCD6E2; border-radius: 5px; background: white; color: #203247; }
+textarea { font: 12px/1.5 ui-monospace, Consolas, monospace; resize: vertical; overflow-wrap: anywhere; min-height: 90px; }
+button { border: 1px solid #275DC7; border-radius: 5px; padding: 9px 13px; background: #275DC7; color: white; font-weight: 600; cursor: pointer; }
+button.secondary { background: transparent; color: #275DC7; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+:focus-visible { outline: 3px solid #275DC7; outline-offset: 3px; }
+.actions { display: flex; flex-wrap: wrap; gap: 9px; margin: 14px 0 10px; }
+#status { min-height: 42px; margin: 12px 0 6px; }
+#applied { font-size: 12px; overflow-wrap: anywhere; max-height: 64px; overflow: auto; margin: 8px 0; }
+.error { color: #B53648; }
+aside { border-top: 1px solid #CCD6E2; padding-top: 12px; margin-top: 16px; font-size: 13px; }
+.options main { max-width: 1180px; margin: auto; padding: 36px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
