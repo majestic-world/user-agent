@@ -39,3 +39,12 @@ Fronteira: formulários do popup/configurações e cabeçalhos recebidos pelo se
 - Gates integrados finais: `npm test` recompilou a extensão e passou os 13 cenários, sem falhas. ZIP com 18 arquivos do `dist`; duas gerações produziram SHA-256 `b7d6c67193d8c9074eecfc45c00afb9b6dda5b5df9416a2ee2b082c778a8440c` (91.523 bytes).
 
 As notas de fontes do catálogo distinguem exemplos históricos, fixtures e relatos de terceiros. Não houve teste físico de modelos de aparelho, publicação em loja, integração Horus ou autenticação de bots; nada disso é critério desta entrega.
+
+## Revisão final
+
+Base fixa: `1ddcc8e7437428b774d09b3f6b2e126d3d392d46`; revisão de todo o intervalo até a implementação e reavaliação das correções em `f15a230`.
+
+- **Standards:** 3 achados aceitos e corrigidos (triagem separada da execução, títulos de testes em inglês em 2 arquivos); nenhum smell heurístico ou achado acionável restante.
+- **Spec:** 1 achado aceito e corrigido (mensagem textual stale após alteração por outra interface), com regressão red/green pelo popup real e conferência no eco. Nenhum achado acionável restante.
+
+Nenhum achado foi descartado. Tickets 01–03 encerrados localmente somente após os dois eixos confirmarem as correções.

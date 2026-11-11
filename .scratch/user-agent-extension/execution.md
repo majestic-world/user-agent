@@ -31,4 +31,9 @@ Independent read-only StandardsReview and SpecReview are reviewing `git diff 1dd
 ## Review
 StandardsReview reported three actionable findings: noncanonical triage Status values, Portuguese test titles in HTTP integration, Portuguese test titles in profile integration. All accepted and corrected: canonical triage labels retained; separate Execution field formally documented; test titles/diagnostics English. No heuristic smells reported. A pretest build now prevents stale dist from producing false green.
 SpecReview reported one actionable finding: stale textual status after external application/restoration. Accepted. A new public popup regression failed with the old draft label after the server already received the confirmed UA; the storage-change listener now recomputes the visible draft/applied/original status and reports refresh failures without stale success.
-Final `npm test` rebuilt and passed 13 scenarios. Two ZIP generations: 91523 bytes, SHA-256 b7d6c67193d8c9074eecfc45c00afb9b6dda5b5df9416a2ee2b082c778a8440c. Prior package hash above describes the pre-review artifact only. No findings discarded. Next: commit corrections and obtain independent confirmation of both axes before closing.
+Final `npm test` rebuilt and passed 13 scenarios. Two ZIP generations: 91523 bytes, SHA-256 b7d6c67193d8c9074eecfc45c00afb9b6dda5b5df9416a2ee2b082c778a8440c. Final ZIP integrity: 18 files identical to dist. Prior package hash above describes the pre-review artifact only. No findings discarded.
+Correction commit: f15a230.
+SpecReview and StandardsReview independently rechecked 0ba05d5..f15a230 and confirmed all respective findings resolved, with no new actionable findings.
+
+## Completion
+All A1–A21 satisfied with recorded evidence; tickets 01–03 Execution: done, preserving canonical triage Status. Source specification marked executed only after integrated acceptance and both review gates. Code commits: 3578ac3, 819c6df, 0ba05d5, f15a230. Generated dist and ZIP remain local/ignored. No push, PR, merge or deploy. No unresolved blockers. No further action pending.

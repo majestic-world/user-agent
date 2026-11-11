@@ -1,6 +1,7 @@
 # Extensão de User-Agent para desenvolvimento web
 
 Status: ready-for-agent
+Execution: done
 
 ## Problem Statement
 
@@ -308,4 +309,4 @@ Quando modelos diferentes compartilham UA, conservar essa informação visível 
 
 ### Continuidade
 
-Próximo passo: o usuário invocar /implement-plan-spec como entrada única de implementação. Essa skill executa na branch atual e decide se precisa de tickets; se necessário, cria-os antes de implementar. Esta publicação não invoca a implementação, não publica issues remotas e não autoriza commit por si só.
+Implementação concluída na branch `main`. Critérios A1–A21 e revisões independentes Standards/Spec concluídos; registros, commits e evidências em [execution.md](execution.md) e [docs/validacao.md](../../docs/validacao.md). Pacote local em `dist/` e `user-agent-local.zip`; nenhum push, PR ou deploy realizado.

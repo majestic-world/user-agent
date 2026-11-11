@@ -1,7 +1,7 @@
 # 03: Interface completa e aceite integrado
 
 Status: ready-for-agent
-Execution: implemented
+Execution: done
 Blocked by: 02
 Fonte: ../spec.md; todos A1–A21, especialmente A18–A19.
 
@@ -14,4 +14,7 @@ Interface pt-BR na direção visual especificada, teclado e estados acessíveis.
 - Evidências individuais A1–A21 e revisão Standards/Spec desde base_sha.
 
 ## Evidências
-`npm run package` e `npm test` passaram (12 cenários); aceite ampliado transmitiu os 62 perfis exatos, verificou busca/teclado/longos, duplicação, iframe entre origens e atualização. Matriz A1–A21 em docs/validacao.md. Capturas nativas omp do popup/configurações finais; controle e janelas isoladas liberados. ZIP reproduzível, 18 arquivos idênticos ao dist. Revisão Standards/Spec ainda pendente antes do encerramento.
+Commits 0ba05d5 e f15a230. Aceite A1–A21 em docs/validacao.md; Chrome real HTTP/HTTPS e capturas nativas omp. `npm test` recompilou e passou 13 cenários. ZIP final reproduzível, 18 arquivos idênticos ao dist. Revisões independentes Standards e Spec confirmaram correções sem novos achados acionáveis.
+
+## Comments
+Encerrado localmente após aceite integrado e revisão final. Controle de desktop, servidores e janelas de teste liberados. Sem publicação remota.
