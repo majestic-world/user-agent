@@ -1,7 +1,7 @@
 import './style.css';
 import { send, validProfile } from './model';
-import { byFamily, familySlug, profileMeta, provenance } from './catalog-ui';
-import { familyIcon } from './icons';
+import { byGroup, bySubgroup, groupSlug, profileMeta, provenance, subgroupOf } from './catalog-ui';
+import { labelIcon } from './icons';
 import type { CustomProfile, Profile } from './model';
 
 const name = document.querySelector<HTMLInputElement>('#profile-name')!;
@@ -47,27 +47,29 @@ function choose(profile?: Profile): void {
   renderControls();
 }
 function renderList(): void {
-  const groups = byFamily(profiles, search.value);
+  const groups = byGroup(profiles, search.value);
   const total = groups.reduce((sum, [, entries]) => sum + entries.length, 0);
   document.querySelector('#count')!.textContent = total + (total === 1 ? ' perfil encontrado' : ' perfis encontrados');
-  const sidebar = document.querySelector('#families')!;
+  const sidebar = document.querySelector('#groups')!;
   sidebar.replaceChildren(); list.replaceChildren();
-  for (const [family, entries] of groups) {
-    const link = document.createElement('a'); link.href = '#' + familySlug(family);
-    const label = document.createElement('span'); label.textContent = family;
+  for (const [group, entries] of groups) {
+    const link = document.createElement('a'); link.href = '#' + groupSlug(group);
+    const label = document.createElement('span'); label.textContent = group;
     const count = document.createElement('span'); count.className = 'count'; count.textContent = String(entries.length);
-    link.append(familyIcon(family), label, count);
+    link.append(labelIcon(group), label, count);
     const item = document.createElement('li'); item.append(link); sidebar.append(item);
-    const heading = document.createElement('h3'); heading.id = familySlug(family); heading.tabIndex = -1;
-    heading.append(familyIcon(family), family);
+    const heading = document.createElement('h3'); heading.id = groupSlug(group); heading.tabIndex = -1;
+    heading.append(labelIcon(group), group);
     list.append(heading);
-    for (const profile of entries) {
+    // Builtins cluster by browser; custom profiles keep creation order.
+    const ordered = group === 'Personalizados' ? entries : bySubgroup(entries).flatMap(([, members]) => members);
+    for (const profile of ordered) {
       const article = document.createElement('article'); article.dataset.profileId = profile.id;
       const title = document.createElement('button'); title.type = 'button'; title.className = 'profile-name'; title.textContent = profile.name;
       title.addEventListener('click', () => { choose(profile); status.textContent = profile.origin === 'builtin' ? 'Integrado somente leitura. Duplique para adaptar.' : 'Edite e salve explicitamente; a aba ativa não será alterada.'; });
       const meta = document.createElement('span'); meta.className = 'meta'; meta.textContent = profileMeta(profile);
       const uaPreview = document.createElement('code'); uaPreview.textContent = profile.ua; uaPreview.title = profile.ua;
-      const origin = document.createElement('span'); origin.className = 'badge ' + profile.origin; origin.textContent = profile.origin === 'builtin' ? profile.category : 'Personalizado';
+      const origin = document.createElement('span'); origin.className = 'badge ' + profile.origin; origin.textContent = subgroupOf(profile) || profile.category;
       article.append(title, meta, uaPreview, origin); list.append(article);
     }
   }

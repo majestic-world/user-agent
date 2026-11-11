@@ -1,10 +1,10 @@
 import './style.css';
 import { send, validProfile, validUA } from './model';
-import { byFamily, categories, familyOf, profileMeta, provenance } from './catalog-ui';
-import { familyIcon, icon } from './icons';
+import { byGroup, bySubgroup, groupOf, profileMeta, provenance } from './catalog-ui';
+import { icon, labelIcon } from './icons';
 import type { Category, CustomProfile, Profile, TabState } from './model';
 
-type View = { kind: 'families' } | { kind: 'family'; family: string } | { kind: 'save' };
+type View = { kind: 'groups' } | { kind: 'group'; group: string } | { kind: 'save' };
 
 const ua = document.querySelector<HTMLInputElement>('#ua')!;
 const status = document.querySelector<HTMLParagraphElement>('#status')!;
@@ -22,7 +22,7 @@ const saveCategory = document.querySelector<HTMLSelectElement>('#save-category')
 let current: TabState | undefined;
 let profiles: Profile[] = [];
 let selected: string | undefined;
-let view: View = { kind: 'families' };
+let view: View = { kind: 'groups' };
 let busy = false;
 let stateKnown = true;
 
@@ -84,15 +84,18 @@ function profileRows(entries: Profile[]): HTMLUListElement {
   }
   return rows;
 }
-function familyRows(groups: [string, Profile[]][]): HTMLUListElement {
+function groupRows(groups: [string, Profile[]][]): HTMLUListElement {
   const rows = element('ul', 'rows');
-  for (const [family, entries] of groups) {
-    const button = element('button', 'family-row'); button.type = 'button'; button.dataset.key = 'family:' + family;
-    button.setAttribute('aria-label', family + ', ' + entries.length + (entries.length === 1 ? ' perfil' : ' perfis'));
+  for (const [group, entries] of groups) {
+    const button = element('button', 'group-row'); button.type = 'button'; button.dataset.key = 'group:' + group;
+    button.setAttribute('aria-label', group + ', ' + entries.length + (entries.length === 1 ? ' perfil' : ' perfis'));
     if (entries.some(profile => profile.id === selected)) button.dataset.current = 'true';
-    const tile = element('span', 'tile'); tile.append(familyIcon(family));
-    button.append(tile, element('span', 'row-name', family), element('span', 'count', String(entries.length)), icon('chevron', 'icon chevron'));
-    button.addEventListener('click', () => { view = { kind: 'family', family }; renderList('back'); scroller.scrollTop = 0; });
+    const tile = element('span', 'tile'); tile.append(labelIcon(group));
+    const text = element('span', 'row-text');
+    const browsers = bySubgroup(entries).map(([name]) => name).filter(Boolean);
+    text.append(element('span', 'row-name', group), element('span', 'row-meta', browsers.length ? browsers.join(', ') : entries.slice(0, 3).map(profile => profile.name).join(', ') + (entries.length > 3 ? '…' : '')));
+    button.append(tile, text, element('span', 'count', String(entries.length)), icon('chevron', 'icon chevron'));
+    button.addEventListener('click', () => { view = { kind: 'group', group }; renderList('back'); scroller.scrollTop = 0; });
     const item = element('li'); item.append(button); rows.append(item);
   }
   return rows;
@@ -102,30 +105,31 @@ function renderList(focusKey = (document.activeElement as HTMLElement | null)?.d
   saveForm.hidden = !saving; list.hidden = saving; saveOpen.hidden = saving;
   list.replaceChildren();
   const query = search.value.trim();
-  const groups = byFamily(profiles, query);
-  if (view.kind === 'family' && !query) {
-    const family = view.family;
-    const entries = groups.find(([name]) => name === family)?.[1];
-    if (!entries) view = { kind: 'families' };
+  const groups = byGroup(profiles, query);
+  if (view.kind === 'group' && !query) {
+    const group = view.group;
+    const entries = groups.find(([name]) => name === group)?.[1];
+    if (!entries) view = { kind: 'groups' };
     else {
       const back = element('button', 'list-back'); back.type = 'button'; back.dataset.key = 'back';
-      back.setAttribute('aria-label', 'Voltar às famílias; ' + family + ' aberta');
-      const tile = element('span', 'tile'); tile.append(familyIcon(family));
-      back.append(icon('back'), tile, element('span', 'row-name', family), element('span', 'count', String(entries.length)));
-      back.addEventListener('click', () => { view = { kind: 'families' }; renderList('family:' + family); });
+      back.setAttribute('aria-label', 'Voltar aos tipos; ' + group + ' aberto');
+      const tile = element('span', 'tile'); tile.append(labelIcon(group));
+      back.append(icon('back'), tile, element('span', 'row-name', group), element('span', 'count', String(entries.length)));
+      back.addEventListener('click', () => { view = { kind: 'groups' }; renderList('group:' + group); });
       list.append(back);
-      for (const category of categories) {
-        const inCategory = entries.filter(profile => profile.category === category);
-        if (!inCategory.length) continue;
-        if (entries.length !== inCategory.length) list.append(element('h2', 'group-title', category));
-        list.append(profileRows(inCategory));
+      for (const [subgroup, members] of bySubgroup(entries)) {
+        if (subgroup) {
+          const title = element('h2', 'group-title'); title.append(labelIcon(subgroup, 'icon small'), subgroup, element('span', 'count', String(members.length)));
+          list.append(title);
+        }
+        list.append(profileRows(members));
       }
     }
   }
-  if (view.kind === 'families' && !query) list.append(familyRows(groups));
+  if (view.kind === 'groups' && !query) list.append(groupRows(groups));
   if (!saving && query) {
-    for (const [family, entries] of groups) {
-      const title = element('h2', 'group-title'); title.append(familyIcon(family, 'icon small'), family);
+    for (const [group, entries] of groups) {
+      const title = element('h2', 'group-title'); title.append(labelIcon(group, 'icon small'), group, element('span', 'count', String(entries.length)));
       list.append(title, profileRows(entries));
     }
     if (!groups.length) list.append(element('p', 'empty', 'Nenhum perfil encontrado. Ajuste a busca ou cole um User-Agent abaixo.'));
@@ -164,15 +168,15 @@ reload.addEventListener('click', () => { void operation(async () => {
 }, 'Recarregamento solicitado explicitamente.'); });
 ua.addEventListener('input', () => { if (selected) { selected = undefined; renderList(); } draft(); });
 ua.addEventListener('keydown', event => { if (event.key === 'Enter' && !apply.disabled) apply.click(); });
-search.addEventListener('input', () => { if (view.kind === 'save') view = { kind: 'families' }; renderList(); scroller.scrollTop = 0; });
+search.addEventListener('input', () => { if (view.kind === 'save') view = { kind: 'groups' }; renderList(); scroller.scrollTop = 0; });
 saveOpen.addEventListener('click', () => { view = { kind: 'save' }; renderList(); saveName.focus(); });
-document.querySelector('#save-back')!.addEventListener('click', () => { view = { kind: 'families' }; renderList(); saveOpen.focus(); });
+document.querySelector('#save-back')!.addEventListener('click', () => { view = { kind: 'groups' }; renderList(); saveOpen.focus(); });
 saveForm.addEventListener('submit', event => {
   event.preventDefault();
   void operation(async () => {
     const profile = validProfile({ name: saveName.value, category: saveCategory.value as Category, ua: ua.value });
     const saved = await send<CustomProfile>({ type: 'create', profile });
-    selected = saved.id; search.value = ''; view = { kind: 'family', family: 'Personalizados' };
+    selected = saved.id; search.value = ''; view = { kind: 'group', group: 'Personalizados' };
     await refreshCatalog();
   }, 'Perfil salvo neste navegador. A aba não foi alterada.');
 });
@@ -195,7 +199,7 @@ async function init(): Promise<void> {
   ua.value = current.applied?.ua ?? ''; selected = current.applied?.profileId;
   await refreshCatalog();
   const profile = profiles.find(profile => profile.id === selected);
-  if (profile) { view = { kind: 'family', family: familyOf(profile) }; renderList(); }
+  if (profile) { view = { kind: 'group', group: groupOf(profile) }; renderList(); }
   draft(); render();
   list.querySelector('[aria-pressed="true"]')?.scrollIntoView({ block: 'nearest' });
 }

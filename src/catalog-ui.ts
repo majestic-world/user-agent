@@ -1,7 +1,7 @@
-import type { Category, Profile } from './model';
+import type { Profile } from './model';
 
-export const categories: Category[] = ['Desktop', 'Mobile', 'Tablet', 'Bots'];
-const familyOrder = ['Chrome', 'Edge', 'Firefox', 'Safari', 'Opera', 'Samsung Internet', 'Silk', 'Bots', 'Personalizados'];
+const groupOrder = ['Desktop', 'Mobile', 'Tablet', 'Bots', 'Personalizados'];
+const subgroupOrder = ['Chrome', 'Edge', 'Firefox', 'Safari', 'Opera', 'Samsung Internet', 'Silk', 'Desktop', 'Mobile', 'Tablet', 'Bots'];
 
 export function matches(profile: Profile, query: string): boolean {
   const normalize = (value: string) => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('pt-BR');
@@ -9,27 +9,40 @@ export function matches(profile: Profile, query: string): boolean {
   return normalize(query).trim().split(/\s+/).every(term => normalize(searchable).includes(term));
 }
 
-export function familyOf(profile: Profile): string {
-  if (profile.origin === 'custom') return 'Personalizados';
-  if (profile.category === 'Bots') return 'Bots';
+/** Top-level grouping: device type for builtins, a single bucket for custom profiles. */
+export function groupOf(profile: Profile): string {
+  return profile.origin === 'custom' ? 'Personalizados' : profile.category;
+}
+
+/** Second-level grouping inside a group: browser family, or type for custom profiles; bots are not subdivided. */
+export function subgroupOf(profile: Profile): string {
+  if (profile.origin === 'custom') return profile.category;
+  if (profile.category === 'Bots') return '';
   const browser = profile.browser ?? 'Outros';
   return browser.startsWith('Opera') ? 'Opera' : browser;
 }
 
-/** Groups matching profiles by browser family, in catalog order; unknown families come last. */
-export function byFamily(profiles: Profile[], query: string): [string, Profile[]][] {
+function grouped(profiles: Profile[], key: (profile: Profile) => string, order: string[]): [string, Profile[]][] {
   const groups = new Map<string, Profile[]>();
   for (const profile of profiles) {
-    if (!matches(profile, query)) continue;
-    const family = familyOf(profile);
-    groups.set(family, [...(groups.get(family) ?? []), profile]);
+    const name = key(profile);
+    groups.set(name, [...(groups.get(name) ?? []), profile]);
   }
-  const rank = (family: string) => { const index = familyOrder.indexOf(family); return index === -1 ? familyOrder.length - 1 : index; };
+  const rank = (name: string) => { const index = order.indexOf(name); return index === -1 ? order.length : index; };
   return [...groups].sort(([a], [b]) => rank(a) - rank(b));
 }
 
-export function familySlug(family: string): string {
-  return 'family-' + family.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+/** Matching profiles grouped by type, in catalog order. */
+export function byGroup(profiles: Profile[], query: string): [string, Profile[]][] {
+  return grouped(profiles.filter(profile => matches(profile, query)), groupOf, groupOrder);
+}
+
+export function bySubgroup(profiles: Profile[]): [string, Profile[]][] {
+  return grouped(profiles, subgroupOf, subgroupOrder);
+}
+
+export function groupSlug(group: string): string {
+  return 'group-' + group.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 }
 
 export function profileMeta(profile: Profile): string {
