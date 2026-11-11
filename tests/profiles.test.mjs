@@ -23,8 +23,8 @@ test('saving does not apply; editing or deleting preserves the applied snapshot'
     assert.equal((await headers(h.page))['user-agent'], original);
     const popup = await h.popup();
     await enter(popup, '#search', 'Meu cenário');
-    const id = await popup.$eval('#profiles option:not([value=""])', el => el.value);
-    await popup.select('#profiles', id);
+    const id = await popup.$eval('#profiles [data-profile-id]', el => el.dataset.profileId);
+    await popup.click('#profiles [data-profile-id="' + id + '"]');
     assert.equal(await popup.$eval('#ua', el => el.value), 'SavedProbe/1');
     await clickAndSettle(popup, '#apply');
     await settings.bringToFront();
@@ -37,7 +37,7 @@ test('saving does not apply; editing or deleting preserves the applied snapshot'
     await clickAndSettle(settings, '#confirm-delete');
     assert.equal((await headers(h.page))['user-agent'], 'SavedProbe/1');
     await popup.bringToFront();
-    await popup.waitForFunction(() => document.querySelectorAll('#profiles option[value]:not([value=""])').length === 0);
+    await popup.waitForFunction(() => document.querySelectorAll('#profiles [data-profile-id]').length === 0);
   } finally { await h.close(); }
 });
 

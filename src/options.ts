@@ -1,6 +1,7 @@
 import './style.css';
 import { send, validProfile } from './model';
-import { matches, provenance } from './catalog-ui';
+import { byFamily, familySlug, profileMeta, provenance } from './catalog-ui';
+import { familyIcon } from './icons';
 import type { CustomProfile, Profile } from './model';
 
 const name = document.querySelector<HTMLInputElement>('#profile-name')!;
@@ -31,6 +32,9 @@ function renderControls(): void {
   document.querySelector<HTMLButtonElement>('#confirm-delete')!.disabled = busy || conflicted;
   document.querySelector<HTMLButtonElement>('#new')!.disabled = busy;
   for (const button of list.querySelectorAll<HTMLButtonElement>('button')) button.disabled = busy;
+  for (const article of list.querySelectorAll<HTMLElement>('article')) {
+    if (article.dataset.profileId === editing?.id) article.setAttribute('aria-current', 'true'); else article.removeAttribute('aria-current');
+  }
   status.dataset.busy = String(busy); status.dataset.ready = 'true';
   document.querySelector('#profile-form')!.setAttribute('aria-busy', String(busy));
 }
@@ -43,19 +47,31 @@ function choose(profile?: Profile): void {
   renderControls();
 }
 function renderList(): void {
-  const visible = profiles.filter(profile => matches(profile, search.value));
-  const count = document.querySelector('#count')!;
-  count.textContent = visible.length + (visible.length === 1 ? ' perfil encontrado' : ' perfis encontrados');
-  list.replaceChildren();
-  for (const profile of visible) {
-    const article = document.createElement('article'); article.dataset.profileId = profile.id;
-    const title = document.createElement('button'); title.type = 'button'; title.className = 'profile-name'; title.textContent = profile.name;
-    title.addEventListener('click', () => { choose(profile); status.textContent = profile.origin === 'builtin' ? 'Integrado somente leitura. Duplique para adaptar.' : 'Edite e salve explicitamente; a aba ativa não será alterada.'; });
-    const context = document.createElement('p');
-    context.textContent = [profile.origin === 'builtin' ? 'Integrado' : 'Personalizado', profile.category, profile.browser, profile.system, profile.origin === 'custom' ? 'ID ' + profile.id : profile.manufacturer].filter(Boolean).join(' · ');
-    article.append(title, context); list.append(article);
+  const groups = byFamily(profiles, search.value);
+  const total = groups.reduce((sum, [, entries]) => sum + entries.length, 0);
+  document.querySelector('#count')!.textContent = total + (total === 1 ? ' perfil encontrado' : ' perfis encontrados');
+  const sidebar = document.querySelector('#families')!;
+  sidebar.replaceChildren(); list.replaceChildren();
+  for (const [family, entries] of groups) {
+    const link = document.createElement('a'); link.href = '#' + familySlug(family);
+    const label = document.createElement('span'); label.textContent = family;
+    const count = document.createElement('span'); count.className = 'count'; count.textContent = String(entries.length);
+    link.append(familyIcon(family), label, count);
+    const item = document.createElement('li'); item.append(link); sidebar.append(item);
+    const heading = document.createElement('h3'); heading.id = familySlug(family); heading.tabIndex = -1;
+    heading.append(familyIcon(family), family);
+    list.append(heading);
+    for (const profile of entries) {
+      const article = document.createElement('article'); article.dataset.profileId = profile.id;
+      const title = document.createElement('button'); title.type = 'button'; title.className = 'profile-name'; title.textContent = profile.name;
+      title.addEventListener('click', () => { choose(profile); status.textContent = profile.origin === 'builtin' ? 'Integrado somente leitura. Duplique para adaptar.' : 'Edite e salve explicitamente; a aba ativa não será alterada.'; });
+      const meta = document.createElement('span'); meta.className = 'meta'; meta.textContent = profileMeta(profile);
+      const uaPreview = document.createElement('code'); uaPreview.textContent = profile.ua; uaPreview.title = profile.ua;
+      const origin = document.createElement('span'); origin.className = 'badge ' + profile.origin; origin.textContent = profile.origin === 'builtin' ? profile.category : 'Personalizado';
+      article.append(title, meta, uaPreview, origin); list.append(article);
+    }
   }
-  if (!visible.length) { const empty = document.createElement('p'); empty.textContent = 'Nenhum perfil encontrado. Ajuste a pesquisa ou crie um perfil.'; list.append(empty); }
+  if (!groups.length) { const empty = document.createElement('p'); empty.className = 'empty'; empty.textContent = 'Nenhum perfil encontrado. Ajuste a pesquisa ou crie um perfil.'; list.append(empty); }
   renderControls();
 }
 function checkConflict(): void {
