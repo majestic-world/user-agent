@@ -73,7 +73,8 @@ test('invalid input and protected destinations preserve the valid configuration'
     const popup = await h.popup();
     await enter(popup, '#ua', 'ToolWithoutMozilla/7');
     await clickAndSettle(popup, '#apply');
-    for (const invalid of ['', '   ', 'One\nTwo', 'Control\u0001Value', 'Nul\u0000Value', 'Tab\tValue']) {
+    // The UA field is a single-line input, so browsers strip line breaks before validation.
+    for (const invalid of ['', '   ', 'Control\u0001Value', 'Nul\u0000Value', 'Tab\tValue']) {
       await enter(popup, '#ua', invalid);
       // CDP text insertion drops NUL before it reaches the input. Preserve it at
       // the public form boundary to exercise validation rather than CDP filtering.

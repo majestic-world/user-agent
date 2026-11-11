@@ -6,7 +6,7 @@ import type { Category, CustomProfile, Profile, TabState } from './model';
 
 type View = { kind: 'families' } | { kind: 'family'; family: string } | { kind: 'save' };
 
-const ua = document.querySelector<HTMLTextAreaElement>('#ua')!;
+const ua = document.querySelector<HTMLInputElement>('#ua')!;
 const status = document.querySelector<HTMLParagraphElement>('#status')!;
 const applied = document.querySelector<HTMLDivElement>('#applied')!;
 const apply = document.querySelector<HTMLButtonElement>('#apply')!;
@@ -163,6 +163,7 @@ reload.addEventListener('click', () => { void operation(async () => {
   await chrome.tabs.reload(current!.tabId);
 }, 'Recarregamento solicitado explicitamente.'); });
 ua.addEventListener('input', () => { if (selected) { selected = undefined; renderList(); } draft(); });
+ua.addEventListener('keydown', event => { if (event.key === 'Enter' && !apply.disabled) apply.click(); });
 search.addEventListener('input', () => { if (view.kind === 'save') view = { kind: 'families' }; renderList(); scroller.scrollTop = 0; });
 saveOpen.addEventListener('click', () => { view = { kind: 'save' }; renderList(); saveName.focus(); });
 document.querySelector('#save-back')!.addEventListener('click', () => { view = { kind: 'families' }; renderList(); saveOpen.focus(); });

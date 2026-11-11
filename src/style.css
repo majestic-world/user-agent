@@ -87,8 +87,9 @@ button.link:hover:not(:disabled) { background: none; text-decoration-color: curr
 .popup { width: 420px; height: 600px; overflow: hidden; font-size: 13px; }
 .popup main { height: 600px; display: flex; flex-direction: column; }
 .topbar { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 10px 16px; }
-.icon-button { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; color: var(--accent); transition: background .15s; }
-.icon-button:hover { background: var(--accent-soft); }
+.top-actions { display: flex; gap: 2px; }
+.icon-button { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 10px; background: transparent; color: var(--accent); transition: background .15s; }
+.icon-button:hover, button.icon-button:hover:not(:disabled) { background: var(--accent-soft); }
 .icon-button .icon { width: 22px; height: 22px; }
 
 .identity { flex-shrink: 0; display: flex; align-items: center; gap: 12px; margin: 0 12px; padding: 10px 10px 10px 14px; border-radius: 12px; background: var(--raised); border: 1px solid var(--line); }
@@ -141,14 +142,12 @@ button.ghost:hover:not(:disabled) { background: var(--hover); border-color: var(
 #save-form .save-fields p { margin: 12px 0; font-size: 13px; color: var(--muted); }
 #save-form .list-back .row-name, #save-form .list-back span { font-weight: 700; font-size: 16px; }
 
-.action-dock { flex-shrink: 0; padding: 12px 16px 14px; border-top: 1px solid var(--line); background: var(--surface); box-shadow: 0 -12px 24px -20px rgb(0 0 0 / .3); }
-.field-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
-.field-head label { margin: 0; }
-.action-dock textarea { height: 76px; min-height: 76px; max-height: 120px; resize: none; transition: height .18s ease; }
-.action-dock textarea:focus { height: 113px; }
-.action-dock #status { margin: 8px 0 0; max-height: 38px; overflow: auto; overflow-wrap: anywhere; }
-.action-dock .actions { margin-top: 10px; flex-wrap: nowrap; }
-.action-dock #apply { flex: 1; padding: 10px 15px; }
+.action-dock { flex-shrink: 0; padding: 12px 14px; border-top: 1px solid var(--line); background: var(--surface); box-shadow: 0 -12px 24px -20px rgb(0 0 0 / .3); }
+.action-dock input { padding: 9px 11px; font: 12px/1.4 var(--mono); }
+.dock-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+/* Only failures need visible space; other states stay announced to assistive technology. */
+.action-dock #status:not(.error) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.action-dock #status.error { margin-top: 8px; font-size: 12px; max-height: 34px; overflow: auto; overflow-wrap: anywhere; }
 
 /* Options */
 .options { background: var(--paper); }
