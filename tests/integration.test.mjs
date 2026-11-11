@@ -121,10 +121,10 @@ test('reconciliation, worker resumption, tab closure and extension reload', { ti
     assert.equal(await popup.$eval('#ua', el => el.value), 'SurvivesWorker/1');
     assert.match(await popup.$eval('#applied', el => el.textContent), /SurvivesWorker/);
     const resumed = await extensionWorker(h);
-    assert.equal(await resumed.evaluate(async () => {
+    assert.match(await resumed.evaluate(async () => {
       const [tab] = await chrome.tabs.query({ url: 'http://127.0.0.1/*' });
-      return chrome.action.getBadgeText({ tabId: tab.id });
-    }), 'UA');
+      return chrome.action.getTitle({ tabId: tab.id });
+    }), /^User-Agent HTTP ativo/);
     await h.page.close();
     const replacement = await h.browser.newPage();
     await replacement.goto(h.origin);
@@ -197,7 +197,7 @@ test('restarting Chrome does not restore temporary identities', { timeout: 60000
   }
 });
 
-test('withheld access disables application and badge but allows restoration', { timeout: 60000 }, async () => {
+test('withheld access disables application and the active indicator but allows restoration', { timeout: 60000 }, async () => {
   const h = await startHarness();
   try {
     let popup = await h.popup();
@@ -211,7 +211,7 @@ test('withheld access disables application and badge but allows restoration', { 
     popup = await h.popup();
     assert.equal(await popup.$eval('#apply', el => el.disabled), true);
     const worker = await extensionWorker(h);
-    assert.equal(await worker.evaluate(id => chrome.action.getBadgeText({ tabId: id }), tabId), '');
+    assert.doesNotMatch(await worker.evaluate(id => chrome.action.getTitle({ tabId: id }), tabId), /ativo/);
     assert.equal(await popup.$eval('#restore', el => el.disabled), false);
     await clickAndSettle(popup, '#restore');
     const reopened = await h.popup();

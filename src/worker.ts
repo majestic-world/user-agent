@@ -13,10 +13,14 @@ function serial<T>(action: () => Promise<T>): Promise<T> {
 function message(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
+const icons = {
+  idle: { 16: 'icons/16.png', 32: 'icons/32.png' },
+  active: { 16: 'icons/active-16.png', 32: 'icons/active-32.png' },
+};
 async function indicator(tabId: number, applied: Applied | null, supported = true): Promise<void> {
-  await chrome.action.setBadgeText({ tabId, text: applied && supported ? 'UA' : '' });
-  await chrome.action.setBadgeBackgroundColor({ tabId, color: '#275DC7' });
-  await chrome.action.setTitle({ tabId, title: applied && supported ? 'User-Agent HTTP ativo: ' + applied.name : 'User-Agent Local — navegador original ou destino não suportado' });
+  const active = !!applied && supported;
+  await chrome.action.setIcon({ tabId, path: active ? icons.active : icons.idle });
+  await chrome.action.setTitle({ tabId, title: active ? 'User-Agent HTTP ativo: ' + applied.name : 'User-Agent Local — navegador original ou destino não suportado' });
 }
 async function reconcile(): Promise<void> {
   const [installedRules, tabs, data] = await Promise.all([chrome.declarativeNetRequest.getSessionRules(), chrome.tabs.query({}), chrome.storage.session.get(['applied', 'epoch'])]);
