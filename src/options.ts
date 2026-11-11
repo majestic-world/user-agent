@@ -132,6 +132,13 @@ duplicate.addEventListener('click', () => {
 });
 document.querySelector('#new')!.addEventListener('click', () => { choose(); status.textContent = 'Novo perfil. Salvar não aplica à aba.'; name.focus(); });
 search.addEventListener('input', renderList);
+// Defined by public/theme.js, which runs before this module.
+declare function applyTheme(): void;
+const themeChoice = localStorage.getItem('theme') ?? 'system';
+for (const option of document.querySelectorAll<HTMLInputElement>('input[name="theme"]')) {
+  option.checked = option.value === themeChoice;
+  option.addEventListener('change', () => { localStorage.setItem('theme', option.value); applyTheme(); });
+}
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'local' && changes.customCatalog) void refresh().catch(error => { status.textContent = errorText(error); status.className = 'error'; });
 });
