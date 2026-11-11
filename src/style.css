@@ -173,12 +173,12 @@ button.ghost:hover:not(:disabled) { background: rgb(255 255 255 / .12); border-c
 .theme-switch span { display: block; padding: 6px 0; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; color: var(--muted); background: var(--raised); }
 .theme-switch input:checked + span { background: var(--solid); color: var(--on-solid); }
 .theme-switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
-.options main { max-width: 1240px; padding: 36px 40px 48px; }
+.options main { min-width: 0; padding: 36px 40px 48px; }
 .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
 .page-head h1 { font-size: 30px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
 .page-head p { margin-top: 6px; color: var(--muted); }
 .options #status { min-height: 20px; margin: 18px 0; }
-.workspace { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(340px, 1fr); gap: 28px; align-items: start; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, min(34%, 560px)); gap: 28px; align-items: start; }
 .catalog-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
 .catalog-head h2, .editor h2 { font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
 #count { font-size: 13px; color: var(--muted); }
