@@ -53,3 +53,15 @@ npm test
 ```
 
 A integração usa Chrome real instalado em `C:/Program Files/Google/Chrome/Application/chrome.exe`, perfil descartável e servidores de eco HTTP/HTTPS locais sem cache. O certificado temporário é aceito apenas pelo Chrome isolado de testes; nenhuma permissão do navegador pessoal é alterada. Instrumentação de depuração pertence ao harness, nunca à extensão distribuída. Não acessa Horus, seu banco ou navegação externa.
+
+Resultados e cenários A1–A21: [matriz de validação](docs/validacao.md). A suíte atual contém 12 cenários de integração. Não há linter separado configurado; a build inclui a checagem estrita de tipos.
+
+## Gerar pacote
+
+```sh
+npm run package
+```
+
+Produz `user-agent-local.zip` com manifesto na raiz, ícones, scripts e fontes locais. Extraia em uma pasta estável e use **Carregar sem compactação** nessa pasta. Não há assinatura ou publicação em loja. O ZIP usa ordem e timestamps fixos; duas gerações com os mesmos arquivos de build produziram o mesmo SHA-256. `dist/`, o ZIP e evidências brutas em `artifacts/` são gerados e não versionados.
+
+Source Sans 3 é distribuída sob SIL OFL 1.1; a licença acompanha o pacote em `licenses/source-sans-3.txt`.

@@ -12,7 +12,7 @@ export function populate(select: HTMLSelectElement, profiles: Profile[], query: 
     const entries = profiles.filter(profile => (profile.origin === 'custom' ? 'Personalizados' : profile.category) === category && matches(profile, query));
     if (!entries.length) continue;
     const group = document.createElement('optgroup'); group.label = category;
-    for (const profile of entries) group.append(new Option(profile.name + (profile.origin === 'custom' ? ' (' + profile.category + ')' : ''), profile.id));
+    for (const profile of entries) group.append(new Option(profile.name + (profile.origin === 'custom' ? ' (' + profile.category + '; ' + profile.id.slice(0, 8) + ')' : ''), profile.id));
     select.append(group);
   }
   select.value = selected ?? '';
@@ -22,8 +22,9 @@ export function provenance(container: HTMLElement, profile?: Profile): void {
   container.replaceChildren();
   if (!profile) return;
   const context = document.createElement('p');
-  context.textContent = [profile.origin === 'builtin' ? 'Integrado' : 'Personalizado', profile.category, profile.browser, profile.system, profile.manufacturer, profile.model].filter(Boolean).join(' · ');
+  context.textContent = [profile.origin === 'builtin' ? 'Integrado' : 'Personalizado', profile.category, profile.browser, profile.system, profile.manufacturer, profile.model, profile.origin === 'custom' ? 'ID ' + profile.id : undefined].filter(Boolean).join(' · ');
   container.append(context);
+  const name = document.createElement('p'); name.textContent = profile.name; container.append(name);
   if (profile.notes) {
     const notes = document.createElement('p'); notes.textContent = profile.notes; container.append(notes);
   }

@@ -1,17 +1,19 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>User-Agent Local</title></head>
 <body class="popup"><main><header><h1>User-Agent <span>Local</span></h1><a href="options.html" target="_blank">Configurações</a></header>
+<div class="popup-content">
 <label for="search">Encontrar perfil</label><input id="search" type="search" placeholder="Dispositivo, navegador, sistema ou fabricante" autocomplete="off">
 <label for="profiles">Perfis</label><select id="profiles" aria-describedby="profile-info"><option value="">Consultando catálogo…</option></select>
 <label for="ua">User-Agent HTTP</label><textarea id="ua" rows="4" spellcheck="false" placeholder="Cole uma identidade HTTP"></textarea>
 <details class="provenance"><summary>Procedência e limites do perfil</summary><div id="profile-info"></div></details>
-<p id="status" role="status" aria-live="polite">Consultando aba…</p><p id="applied"></p>
-<div class="actions"><button id="apply" disabled>Aplicar nesta aba</button><button id="restore" class="secondary" disabled>Restaurar</button></div>
-<button id="reload" class="secondary" disabled>Recarregar página</button>
 <details id="save-panel"><summary>Salvar como perfil</summary><form id="save-form">
 <label for="save-name">Nome</label><input id="save-name" required>
 <label for="save-category">Categoria</label><select id="save-category"><option>Desktop</option><option>Mobile</option><option>Tablet</option><option>Bots</option></select>
 <p>Salva o User-Agent do campo acima, sem aplicar ou recarregar.</p><button id="save" type="submit">Salvar perfil</button>
 </form></details>
 <aside>Altera apenas cabeçalhos HTTP. navigator, tela, touch, motor e IP continuam reais. Um UA de bot não comprova sua autenticidade.</aside>
-</main><script type="module" src="/src/popup.ts"></script></body></html>
+</div><footer class="action-dock">
+<p id="status" role="status" aria-live="polite">Consultando aba…</p><p id="applied" tabindex="0" aria-label="Configuração HTTP confirmada"></p>
+<div class="actions"><button id="apply" disabled>Aplicar nesta aba</button><button id="restore" class="secondary" disabled>Restaurar</button></div>
+<button id="reload" class="secondary" disabled>Recarregar página</button>
+</footer></main><script type="module" src="/src/popup.ts"></script></body></html>

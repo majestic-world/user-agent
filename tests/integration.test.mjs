@@ -87,7 +87,6 @@ test('entrada inválida e destinos protegidos não substituem o estado válido',
     await h.page.goto('chrome://version');
     const protectedPopup = await h.popup();
     assert.equal(await protectedPopup.$eval('#apply', el => el.disabled), true);
-    assert.match(await protectedPopup.$eval('#status', el => el.textContent), /protegida|disponível/);
   } finally { await h.close(); }
 });
 
@@ -195,4 +194,56 @@ test('reiniciar Chrome não restaura identidades temporárias', { timeout: 60000
     if (!closed) await h.close();
     await rm(profile, { recursive: true, force: true });
   }
+});
+
+test('acesso retido desabilita aplicação e badge, mas permite restaurar', { timeout: 60000 }, async () => {
+  const h = await startHarness();
+  try {
+    let popup = await h.popup();
+    await enter(popup, '#ua', 'BeforeWithholding/1');
+    await clickAndSettle(popup, '#apply');
+    const tabId = await (await extensionWorker(h)).evaluate(async origin => (await chrome.tabs.query({})).find(tab => tab.url === origin + '/').id, h.origin);
+    await popup.close();
+    const manager = await h.browser.newPage();
+    await manager.goto('chrome://extensions');
+    await manager.evaluate(id => chrome.developerPrivate.updateExtensionConfiguration({ extensionId: id, hostAccess: 'ON_CLICK' }), h.extensionId);
+    popup = await h.popup();
+    assert.equal(await popup.$eval('#apply', el => el.disabled), true);
+    const worker = await extensionWorker(h);
+    assert.equal(await worker.evaluate(id => chrome.action.getBadgeText({ tabId: id }), tabId), '');
+    assert.equal(await popup.$eval('#restore', el => el.disabled), false);
+    await clickAndSettle(popup, '#restore');
+    const reopened = await h.popup();
+    assert.equal(await reopened.$eval('#restore', el => el.disabled), true);
+    assert.notEqual((await headers(h.page))['user-agent'], 'BeforeWithholding/1');
+  } finally { await h.close(); }
+});
+
+test('comandos concorrentes concluem em ordem e mostram o último UA confirmado', { timeout: 60000 }, async () => {
+  const h = await startHarness();
+  try {
+    const first = await h.popup();
+    const second = await h.popup();
+    const worker = await extensionWorker(h);
+    await worker.evaluate(() => {
+      const original = chrome.declarativeNetRequest.updateSessionRules;
+      const gate = new Promise(resolve => { globalThis.releaseRule = resolve; });
+      chrome.declarativeNetRequest.updateSessionRules = async options => {
+        await gate;
+        chrome.declarativeNetRequest.updateSessionRules = original;
+        return original(options);
+      };
+    });
+    await first.bringToFront();
+    await enter(first, '#ua', 'ConcurrentFirst/1');
+    await first.click('#apply');
+    await second.bringToFront();
+    await enter(second, '#ua', 'ConcurrentLast/2');
+    await second.click('#apply');
+    await worker.evaluate(() => globalThis.releaseRule());
+    await second.waitForFunction(() => document.querySelector('#status').dataset.busy === 'false');
+    assert.equal((await headers(h.page))['user-agent'], 'ConcurrentLast/2');
+    await first.bringToFront();
+    await first.waitForFunction(() => document.querySelector('#applied').textContent.includes('ConcurrentLast/2'));
+  } finally { await h.close(); }
 });

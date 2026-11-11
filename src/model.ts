@@ -26,6 +26,7 @@ export interface Applied {
   name: string;
   category?: Category;
   profileId?: string;
+  origin?: Profile['origin'];
 }
 export interface TabState {
   tabId: number;

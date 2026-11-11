@@ -40,7 +40,10 @@ async function reconcile(): Promise<void> {
   snapshots = next;
   await chrome.storage.session.set({ applied: snapshots });
   for (const tab of tabs) {
-    if (tab.id !== undefined) await indicator(tab.id, snapshots[tab.id] ?? null, allowedURL(tab.url));
+    if (tab.id === undefined) continue;
+    const applied = snapshots[tab.id] ?? null;
+    const supported = allowedURL(tab.url) && (!applied || await chrome.permissions.contains({ origins: [new URL(tab.url!).origin + '/*'] }));
+    await indicator(tab.id, applied, supported);
   }
 }
 function allowedURL(url?: string): boolean {
@@ -51,7 +54,8 @@ function allowedURL(url?: string): boolean {
 async function state(tabId: number): Promise<TabState> {
   const tab = await chrome.tabs.get(tabId);
   let reason: string | undefined;
-  if (!allowedURL(tab.url)) reason = 'Esta página é protegida ou não usa HTTP/HTTPS. Abra uma página web permitida.';
+  if (!tab.url) reason = 'Destino indisponível ou acesso ao site retido. Confira o acesso a sites nas configurações da extensão.';
+  else if (!allowedURL(tab.url)) reason = 'Esta página é protegida ou não usa HTTP/HTTPS. Abra uma página web permitida.';
   else if (!await chrome.permissions.contains({ origins: [new URL(tab.url!).origin + '/*'] })) reason = 'Acesso ao site não disponível. Confira o acesso a sites nas configurações da extensão e tente novamente.';
   return { tabId, supported: !reason, reason, applied: snapshots[tabId] ?? null };
 }
@@ -71,7 +75,7 @@ async function apply(tabId: number, raw: unknown, profileId?: string): Promise<T
     ] },
     condition: { tabIds: [tabId], regexFilter: '^https?://', resourceTypes: Object.values(chrome.declarativeNetRequest.ResourceType) },
   }] });
-  snapshots[tabId] = { ua, name: profile?.name ?? 'Personalizado aplicado', category: profile?.category, profileId: profile?.id };
+  snapshots[tabId] = { ua, name: profile?.name ?? 'Personalizado aplicado', category: profile?.category, profileId: profile?.id, origin: profile?.origin };
   try {
     await chrome.storage.session.set({ applied: snapshots });
     await indicator(tabId, snapshots[tabId]);
@@ -149,6 +153,8 @@ chrome.runtime.onInstalled.addListener(() => { void serial(clear).catch(report);
 chrome.runtime.onStartup.addListener(() => { void serial(clear).catch(report); });
 chrome.tabs.onRemoved.addListener(tabId => { void serial(() => discard(tabId)).catch(report); });
 chrome.tabs.onReplaced.addListener((_added, removed) => { void serial(() => discard(removed)).catch(report); });
+chrome.permissions.onRemoved.addListener(() => { void serial(reconcile).catch(report); });
+chrome.permissions.onAdded.addListener(() => { void serial(reconcile).catch(report); });
 chrome.tabs.onUpdated.addListener((tabId, change) => {
   if (change.status === 'loading' || change.url) void serial(async () => {
     const current = await state(tabId);

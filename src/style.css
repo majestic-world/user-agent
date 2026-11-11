@@ -3,7 +3,16 @@
 :root { font-family: 'Source Sans 3', sans-serif; color: #203247; background: #F4F7FA; font-size: 15px; line-height: 1.4; }
 * { box-sizing: border-box; }
 body { margin: 0; }
-.popup { width: 420px; }
+.popup { width: 420px; height: 600px; overflow: hidden; }
+.popup main { height: 600px; padding: 16px; display: flex; flex-direction: column; }
+.popup header { flex-shrink: 0; margin-bottom: 12px; }
+.popup-content { flex: 1; min-height: 0; overflow: auto; padding: 3px 4px 12px; }
+.popup textarea { max-height: 160px; }
+.action-dock { flex-shrink: 0; border-top: 1px solid #CCD6E2; padding: 4px; }
+.action-dock #status { min-height: 0; max-height: 72px; overflow: auto; overflow-wrap: anywhere; margin: 8px 0; }
+.action-dock #applied { max-height: 36px; margin: 4px 0; }
+.action-dock .actions { margin: 8px 0; }
+.action-dock #reload { padding: 3px 0; border-color: transparent; font-weight: 400; text-decoration: underline; }
 main { padding: 20px; }
 header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 h1 { font-size: 24px; line-height: 1.1; margin: 0; font-weight: 600; }
