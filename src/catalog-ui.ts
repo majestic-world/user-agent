@@ -47,7 +47,7 @@ export function groupSlug(group: string): string {
 
 export function profileMeta(profile: Profile): string {
   if (profile.origin === 'custom') return profile.category + ', ID ' + profile.id.slice(0, 8);
-  const details = [profile.manufacturer, profile.system].filter((value): value is string => !!value && !profile.name.includes(value));
+  const details = [profile.model, profile.manufacturer, profile.system].filter((value): value is string => !!value && !profile.name.includes(value));
   return details.length ? details.join(', ') : profile.category;
 }
 
