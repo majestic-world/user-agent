@@ -64,4 +64,4 @@ npm run package
 
 Produz `user-agent-local.zip` com manifesto na raiz, ícones, scripts e fontes locais. Extraia em uma pasta estável e use **Carregar sem compactação** nessa pasta. Não há assinatura ou publicação em loja. O ZIP usa ordem e timestamps fixos; duas gerações com os mesmos arquivos de build produziram o mesmo SHA-256. `dist/`, o ZIP e evidências brutas em `artifacts/` são gerados e não versionados.
 
-Source Sans 3 é distribuída sob SIL OFL 1.1; a licença acompanha o pacote em `licenses/source-sans-3.txt`.
+Inter é distribuída sob SIL OFL 1.1; a licença acompanha o pacote em `licenses/inter.txt`.
