@@ -11,7 +11,7 @@ async function options(h) {
   return page;
 }
 
-test('salvar disponibiliza o perfil sem aplicar; editar/excluir não muda o snapshot aplicado', { timeout: 60000 }, async () => {
+test('saving does not apply; editing or deleting preserves the applied snapshot', { timeout: 60000 }, async () => {
   const h = await startHarness();
   try {
     const original = (await headers(h.page))['user-agent'];
@@ -41,7 +41,7 @@ test('salvar disponibiliza o perfil sem aplicar; editar/excluir não muda o snap
   } finally { await h.close(); }
 });
 
-test('duplicar preserva o integrado; conflitos de edição e exclusão preservam o rascunho', { timeout: 60000 }, async () => {
+test('duplication preserves builtins; edit and deletion conflicts preserve drafts', { timeout: 60000 }, async () => {
   const h = await startHarness();
   try {
     const first = await options(h);
@@ -77,7 +77,7 @@ test('duplicar preserva o integrado; conflitos de edição e exclusão preservam
   } finally { await h.close(); }
 });
 
-test('falha de armazenamento não declara cadastro ou exclusão concluídos', { timeout: 60000 }, async () => {
+test('storage failure never reports a successful save or deletion', { timeout: 60000 }, async () => {
   const h = await startHarness();
   try {
     const page = await options(h);
@@ -104,7 +104,7 @@ test('falha de armazenamento não declara cadastro ou exclusão concluídos', { 
   } finally { await h.close(); }
 });
 
-test('personalizados persistem no reinício e marcação é texto inerte', { timeout: 60000 }, async () => {
+test('custom profiles survive restart and markup remains inert text', { timeout: 60000 }, async () => {
   const h = await startHarness();
   const profile = h.userDataDir;
   let closed = false;

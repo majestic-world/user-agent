@@ -87,7 +87,13 @@ document.querySelector('#save-form')!.addEventListener('submit', event => {
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'local' && changes.customCatalog) void refreshCatalog().catch(error => { status.textContent = errorText(error); status.className = 'error'; });
   if (area === 'session' && changes.applied && current && !busy) {
-    void send<TabState>({ type: 'state', tabId: current.tabId }).then(value => { current = value; stateKnown = true; render(); }, () => { stateKnown = false; render(); });
+    void send<TabState>({ type: 'state', tabId: current.tabId }).then(value => {
+      if (busy) return;
+      current = value; stateKnown = true; draft(); render();
+    }, error => {
+      if (busy) return;
+      stateKnown = false; status.textContent = errorText(error); status.className = 'error'; render();
+    });
   }
 });
 async function init(): Promise<void> {

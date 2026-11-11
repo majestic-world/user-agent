@@ -1,6 +1,7 @@
 # 03: Interface completa e aceite integrado
 
-Status: implemented
+Status: ready-for-agent
+Execution: implemented
 Blocked by: 02
 Fonte: ../spec.md; todos A1–A21, especialmente A18–A19.
 

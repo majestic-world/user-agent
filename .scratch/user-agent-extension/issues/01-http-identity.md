@@ -1,6 +1,7 @@
 # 01: Identidade HTTP isolada por aba
 
-Status: implemented
+Status: ready-for-agent
+Execution: implemented
 Blocked by: none
 Fonte: ../spec.md; A1, A3–A11, A14–A16, A20–A21.
 

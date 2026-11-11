@@ -54,7 +54,7 @@ npm test
 
 A integração usa Chrome real instalado em `C:/Program Files/Google/Chrome/Application/chrome.exe`, perfil descartável e servidores de eco HTTP/HTTPS locais sem cache. O certificado temporário é aceito apenas pelo Chrome isolado de testes; nenhuma permissão do navegador pessoal é alterada. Instrumentação de depuração pertence ao harness, nunca à extensão distribuída. Não acessa Horus, seu banco ou navegação externa.
 
-Resultados e cenários A1–A21: [matriz de validação](docs/validacao.md). A suíte atual contém 12 cenários de integração. Não há linter separado configurado; a build inclui a checagem estrita de tipos.
+Resultados e cenários A1–A21: [matriz de validação](docs/validacao.md). `npm test` recompila a extensão antes dos 13 cenários de integração, evitando validar um `dist` desatualizado. Não há linter separado configurado; a build inclui a checagem estrita de tipos.
 
 ## Gerar pacote
 

@@ -9,6 +9,8 @@ Issues and specs for this repo live as markdown files in `.scratch/`.
 - Implementation issues are one file per ticket at `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01`, never a single combined tickets file
 - Triage state is recorded as a `Status:` line near the top of each issue file (see `triage-labels.md` for the role strings)
 - Comments and conversation history append to the bottom of the file under a `## Comments` heading
+- For implementation tickets, keep `Status:` as one of the five canonical triage labels. Record execution separately as `Execution: pending`, `in-progress`, `implemented`, `done`, or `blocked`; these are not new triage labels.
+- `implemented` releases dependencies only after a validated local commit. `done` means acceptance, integrated validation, and final review passed; a `done` implementation ticket is closed regardless of its retained triage label. Wayfinding tickets use the separate workflow below.
 
 ## When a skill says "publish to the issue tracker"
 

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { startHarness, enter, clickAndSettle, headers } from './harness.mjs';
 import { rm } from 'node:fs/promises';
 
-test('aplicar uma string altera a próxima requisição da aba, sem recarregar', { timeout: 60000 }, async () => {
+test('applying a direct UA changes the next tab request without reloading', { timeout: 60000 }, async () => {
   const h = await startHarness();
   try {
     const reference = await headers(h.page);
@@ -17,14 +17,14 @@ test('aplicar uma string altera a próxima requisição da aba, sem recarregar',
   } finally { await h.close(); }
 });
 
-test('isolamento, navegação, recursos, hints, navigator e restauração', { timeout: 60000 }, async () => {
+test('tab isolation, navigation, resources, hints, navigator and restoration', { timeout: 60000 }, async () => {
   const h = await startHarness();
   try {
     await h.page.goto(h.secureOrigin);
     const reference = await headers(h.page, 'reference');
     const navigatorReference = await h.page.evaluate(() => ({ ua: navigator.userAgent, data: navigator.userAgentData?.toJSON() }));
-    assert.ok(reference['sec-ch-ua'], 'a referência deve realmente enviar UA-CH');
-    assert.ok(reference['sec-ch-ua-full-version-list'], 'a referência deve enviar hints de alta entropia');
+    assert.ok(reference['sec-ch-ua'], 'the reference must actually send UA-CH');
+    assert.ok(reference['sec-ch-ua-full-version-list'], 'the reference must send high-entropy hints');
     const other = await h.browser.newPage();
     await other.goto(h.secureOrigin);
     const popup = await h.popup();
@@ -67,7 +67,7 @@ test('isolamento, navegação, recursos, hints, navigator e restauração', { ti
   } finally { await h.close(); }
 });
 
-test('entrada inválida e destinos protegidos não substituem o estado válido', { timeout: 60000 }, async () => {
+test('invalid input and protected destinations preserve the valid configuration', { timeout: 60000 }, async () => {
   const h = await startHarness();
   try {
     const popup = await h.popup();
@@ -95,7 +95,7 @@ async function extensionWorker(h) {
   return target.worker();
 }
 
-test('reconciliação, retomada do worker, fechamento e recarga da extensão', { timeout: 60000 }, async () => {
+test('reconciliation, worker resumption, tab closure and extension reload', { timeout: 60000 }, async () => {
   const h = await startHarness();
   try {
     const reference = (await headers(h.page))['user-agent'];
@@ -141,7 +141,7 @@ test('reconciliação, retomada do worker, fechamento e recarga da extensão', {
   } finally { await h.close(); }
 });
 
-test('regra rejeitada preserva estado; metadados rejeitados não ocultam a regra real', { timeout: 60000 }, async () => {
+test('rule rejection preserves state; metadata failure exposes the actual rule', { timeout: 60000 }, async () => {
   const h = await startHarness();
   try {
     const popup = await h.popup();
@@ -175,7 +175,7 @@ test('regra rejeitada preserva estado; metadados rejeitados não ocultam a regra
   } finally { await h.close(); }
 });
 
-test('reiniciar Chrome não restaura identidades temporárias', { timeout: 60000 }, async () => {
+test('restarting Chrome does not restore temporary identities', { timeout: 60000 }, async () => {
   const h = await startHarness();
   const profile = h.userDataDir;
   let closed = false;
@@ -196,7 +196,7 @@ test('reiniciar Chrome não restaura identidades temporárias', { timeout: 60000
   }
 });
 
-test('acesso retido desabilita aplicação e badge, mas permite restaurar', { timeout: 60000 }, async () => {
+test('withheld access disables application and badge but allows restoration', { timeout: 60000 }, async () => {
   const h = await startHarness();
   try {
     let popup = await h.popup();
@@ -219,7 +219,7 @@ test('acesso retido desabilita aplicação e badge, mas permite restaurar', { ti
   } finally { await h.close(); }
 });
 
-test('comandos concorrentes concluem em ordem e mostram o último UA confirmado', { timeout: 60000 }, async () => {
+test('concurrent commands complete in order and show the last confirmed UA', { timeout: 60000 }, async () => {
   const h = await startHarness();
   try {
     const first = await h.popup();
@@ -245,5 +245,30 @@ test('comandos concorrentes concluem em ordem e mostram o último UA confirmado'
     assert.equal((await headers(h.page))['user-agent'], 'ConcurrentLast/2');
     await first.bringToFront();
     await first.waitForFunction(() => document.querySelector('#applied').textContent.includes('ConcurrentLast/2'));
+  } finally { await h.close(); }
+});
+
+test('external application and restoration refresh the visible draft status', { timeout: 60000 }, async () => {
+  const h = await startHarness();
+  try {
+    const reference = (await headers(h.page))['user-agent'];
+    const first = await h.popup();
+    await enter(first, '#ua', 'ExternalState/1');
+    const unappliedStatus = await first.$eval('#status', el => el.textContent);
+    const second = await h.popup();
+    await enter(second, '#ua', 'ExternalState/1');
+    await clickAndSettle(second, '#apply');
+    await first.bringToFront();
+    await first.waitForFunction(() => document.querySelector('#applied').textContent.includes('ExternalState/1'));
+    assert.equal((await headers(h.page))['user-agent'], 'ExternalState/1');
+    assert.notEqual(await first.$eval('#status', el => el.textContent), unappliedStatus, 'a confirmed matching UA must no longer be described as an unapplied draft');
+    await enter(first, '#ua', '');
+    const differentDraftStatus = await first.$eval('#status', el => el.textContent);
+    await second.bringToFront();
+    await clickAndSettle(second, '#restore');
+    await first.bringToFront();
+    await first.waitForFunction(() => document.querySelector('#restore').disabled);
+    assert.equal((await headers(h.page))['user-agent'], reference);
+    assert.notEqual(await first.$eval('#status', el => el.textContent), differentDraftStatus, 'an empty field matching the restored original must no longer be described as a different draft');
   } finally { await h.close(); }
 });

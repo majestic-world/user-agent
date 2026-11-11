@@ -1,6 +1,7 @@
 # 02: Catálogo e personalizados persistentes
 
-Status: implemented
+Status: ready-for-agent
+Execution: implemented
 Blocked by: 01
 Fonte: ../spec.md; A2, A12–A13, A16–A18.
 
