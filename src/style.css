@@ -137,8 +137,6 @@ button.ghost:hover:not(:disabled) { background: var(--hover); border-color: var(
 .profile-row[aria-pressed="true"] { background: var(--accent-soft); }
 .profile-row[aria-pressed="true"] .row-name { font-weight: 600; color: var(--accent-strong); }
 .profile-row[aria-pressed="true"] .row-check { visibility: visible; }
-.rows .provenance { margin: 2px 4px 8px 14px; padding: 6px 10px 2px; border-left: 2px solid var(--accent-soft); }
-.rows .provenance .tags { display: none; }
 .empty { padding: 16px 10px; color: var(--muted); font-size: 13px; }
 .browse .limits { margin: 12px 4px 0; padding: 12px 10px 0; border-top: 1px solid var(--line); }
 #save-form .save-fields { padding: 0 10px; }

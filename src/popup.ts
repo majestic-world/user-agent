@@ -1,6 +1,6 @@
 import './style.css';
 import { send, validProfile, validUA } from './model';
-import { byGroup, bySubgroup, groupOf, profileMeta, provenance } from './catalog-ui';
+import { byGroup, bySubgroup, groupOf, profileMeta } from './catalog-ui';
 import { icon, labelIcon } from './icons';
 import type { Category, CustomProfile, Profile, TabState } from './model';
 
@@ -79,7 +79,6 @@ function profileRows(entries: Profile[]): HTMLUListElement {
     button.append(text, icon('check', 'icon row-check'));
     button.addEventListener('click', () => choose(profile));
     item.append(button);
-    if (active) { const info = element('div', 'provenance'); provenance(info, profile); item.append(info); }
     rows.append(item);
   }
   return rows;
