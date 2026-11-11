@@ -88,7 +88,6 @@ function groupRows(groups: [string, Profile[]][]): HTMLUListElement {
   for (const [group, entries] of groups) {
     const button = element('button', 'group-row'); button.type = 'button'; button.dataset.key = 'group:' + group;
     button.setAttribute('aria-label', group + ', ' + entries.length + (entries.length === 1 ? ' perfil' : ' perfis'));
-    if (entries.some(profile => profile.id === selected)) button.dataset.current = 'true';
     const tile = element('span', 'tile'); tile.append(labelIcon(group));
     const text = element('span', 'row-text');
     const browsers = bySubgroup(entries).map(([name]) => name).filter(Boolean);

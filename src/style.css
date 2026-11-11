@@ -125,7 +125,6 @@ button.ghost:hover:not(:disabled) { background: rgb(255 255 255 / .12); border-c
 .group-row { padding-block: 7px; }
 .group-row .row-name { font-weight: 600; }
 .group-row .row-meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.group-row[data-current="true"] .tile { box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--ink); }
 .count { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--faint); }
 .chevron { color: var(--faint); width: 18px; height: 18px; }
 .group-row:hover .chevron { color: var(--ink); }
